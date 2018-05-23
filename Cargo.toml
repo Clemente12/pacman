@@ -1,0 +1,9 @@
+[package]
+name    = "pacman"
+version = "0.1.0"
+authors = ["hawkings"]
+
+[dependencies]
+docopt       = {version = "*"}
+serde        = {version = "*"}
+serde_derive = {version = "*"}
