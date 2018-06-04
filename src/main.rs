@@ -6,8 +6,6 @@
 use std::time::Duration;
 use std::thread::sleep;
 
-use std::fmt;
- 
 
 static MAP: &'static str = "
 ################# ####### #################
@@ -36,19 +34,28 @@ static MAP: &'static str = "
 ";
 
 
-#[derive(Debug)]
-struct Cell 
+type Canvas = Vec<Vec<char>>;
+
+
+trait Render
 {
-    has_point  : bool,
-    has_wall   : bool,
-    has_cherry : bool,
+    fn draw(&self, canvas: &mut Canvas);
 }
 
 #[derive(Debug)]
 struct Position
 {
-    x : u64, 
-    y : u64,
+    x : usize, 
+    y : usize,
+}
+
+#[derive(Debug)]
+struct Cell 
+{
+    pos        : Position,
+    has_point  : bool,
+    has_wall   : bool,
+    has_cherry : bool,
 }
 
 #[derive(Debug)]
@@ -68,7 +75,7 @@ struct Ghost
 #[derive(Debug)]
 struct Map 
 {
-    cells: Vec<Vec<Cell>>,
+    cells: Vec<Cell>,
 }
 
 #[derive(Debug)]
@@ -80,57 +87,67 @@ struct Game
 }
 
 
-impl fmt::Display for Cell 
+impl Render for Cell 
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error>
+    fn draw(&self, canvas: &mut Canvas)
     {
         if self.has_point  { 
-            return write!(f, "."); 
+            return canvas[self.pos.y][self.pos.x] = '.';
         } else if self.has_wall { 
-            return write!(f, "#"); 
+            return canvas[self.pos.y][self.pos.x] = '#'; 
         } else if self.has_cherry { 
-            return write!(f, "W"); 
+            return canvas[self.pos.y][self.pos.x] = 'W'; 
         } else {
-            return write!(f, " ");
+            return canvas[self.pos.y][self.pos.x] = ' ';
         }
     }
 }
 
 
-impl fmt::Display for Map 
+impl Render for Map 
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error>
+    fn draw(&self, canvas: &mut Canvas)
     {
-        for row in &self.cells 
-        {
-            for cell in row     
-            {
-                cell.fmt(f)?;
-            }
-
-            write!(f, "\n");
+        for cell in &self.cells {
+            cell.draw(canvas);
         }
-
-        return Ok(());
-    }
-}
-
-
-
-impl fmt::Display for Game 
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error>
-    {
-        return self.map.fmt(f);
     }
 }
 
 
 impl Map 
 {
-    fn new(cells: Vec<Vec<Cell>>) -> Self 
+    fn new(cells: Vec<Cell>) -> Self 
     {
         return Self {cells: cells};
+    }
+
+    fn width(&self) -> usize
+    {
+        let mut x = 0;
+
+        for cell in &self.cells
+        {
+            if cell.pos.x > x {
+                x = cell.pos.x;
+            } 
+        } 
+        
+        return x;
+    }
+
+    fn heigth(&self) -> usize
+    {
+        let mut y = 0;
+
+        for cell in &self.cells
+        {
+            if cell.pos.y > y {
+                y = cell.pos.y;
+            } 
+        } 
+        
+        return y;       
     }
 }
 
@@ -139,7 +156,7 @@ impl Game
 {
     fn load(data: &str) -> Self
     {
-        let mut cells:  Vec<Vec<Cell>> = Vec::new();
+        let mut cells:  Vec<Cell>      = Vec::new();
         let mut ghosts: Vec<Ghost>     = Vec::new();
         let mut player: Option<Player> = None;
         
@@ -147,12 +164,12 @@ impl Game
 
         for l in data.split('\n') 
         {
-            let mut line = Vec::<Cell>::new();
             let mut x = 0;
 
             for c in l.chars()
             {
                 let cell = Cell {
+                    pos:        Position::new(x, y),
                     has_point:  c == '.',
                     has_wall:   c == '#',
                     has_cherry: c == 'W',
@@ -167,11 +184,10 @@ impl Game
                     ghosts.push(ghost);
                 }
 
-                line.push(cell);
+                cells.push(cell);
                 x += 1;
             }
 
-            cells.push(line);
             y += 1;
         }
 
@@ -183,12 +199,42 @@ impl Game
 
         return Self {map: map, player: player.unwrap(), ghosts: ghosts};
     }
+
+    fn render(&self)
+    {
+        // prepare canvas
+        let mut canvas = Canvas::new();
+        for _ in 0..self.map.heigth() {
+            canvas.push(Vec::with_capacity(self.map.width()));
+        }
+
+        // draw objects
+        self.map.draw(&mut canvas);
+        // self.player.draw(&mut canvas);
+
+        // for ghost in &self.ghosts {
+            // ghost.draw(&mut canvas);
+        // }
+
+        // output to screen
+        let mut buffer = String::new();
+        for row in canvas 
+        {
+            for col in row {
+                buffer.push(col);
+            }
+
+            buffer.push('\n');
+        }
+
+        println!("{}", buffer);
+    }
 }
 
 
 impl Position
 {
-    fn new(x: u64, y: u64) -> Self
+    fn new(x: usize, y: usize) -> Self
     {
         return Self {x: x, y: y};
     }
@@ -217,8 +263,8 @@ fn main()
 
     loop
     {
-        println!("{}", game);
-
+        game.render();
+        
         print!("\x1bc");
         
         sleep(Duration::from_millis(20));
