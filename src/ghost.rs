@@ -1,9 +1,13 @@
 //!
 //! Ghost
 //!
-use ::Render;
+use ::Key;
+use ::Map;
 use ::Canvas;
 use ::Position;
+
+use ::Render;
+use ::Update;
 
 
 #[derive(Debug)]
@@ -19,6 +23,15 @@ impl Ghost
     pub fn new(pos: Position) -> Self
     {
         return Self {pos: pos, is_edible: false};
+    }
+}
+
+
+impl Update for Ghost
+{
+    fn update(&mut self, map: &Map, _: &Option<Key>)
+    {
+
     }
 }
 

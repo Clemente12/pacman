@@ -16,6 +16,14 @@ pub struct Cell
     pub has_cherry : bool,
 }
 
+impl Cell
+{
+    pub fn is_wall(&self) -> bool
+    {
+        return self.has_wall;
+    }
+}
+
 
 impl Render for Cell
 {

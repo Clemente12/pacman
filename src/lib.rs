@@ -13,6 +13,8 @@ mod position;
 mod traits;
 
 pub use traits::Render;
+pub use traits::Update;
+
 pub use position::Position;
 
 pub use cell::Cell;
@@ -21,6 +23,7 @@ pub use ghost::Ghost;
 pub use player::Player;
 pub use game::Game;
 
+pub use input::Key;
 pub use input::Input;
 pub use input::InputSource;
 pub use input::InputSink;

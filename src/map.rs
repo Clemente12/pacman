@@ -20,6 +20,18 @@ impl Map
         return Self {cells: cells};
     }
 
+    pub fn get_cell(&self, x: usize, y: usize) -> &Cell
+    {
+        for cell in &self.cells
+        {
+            if cell.pos.x == x && cell.pos.y == y {
+                return cell;
+            }
+        }
+
+        unreachable!()
+    }
+
     pub fn width(&self) -> usize
     {
         let mut x = 0;

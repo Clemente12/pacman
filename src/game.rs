@@ -3,11 +3,15 @@
 //!
 use ::Position;
 use ::Player;
+use ::Key;
 use ::Map;
 use ::Ghost;
 use ::Cell;
-use ::Render;
 use ::Canvas;
+
+use ::Update;
+use ::Render;
+
 
 
 #[derive(Debug)]
@@ -65,6 +69,17 @@ impl Game
         }
 
         return Self {map: map, player: player.unwrap(), ghosts: ghosts};
+    }
+
+    pub fn update(&mut self, key: &Option<Key>)
+    {
+        let map = &self.map;
+
+        self.player.update(map, &key);
+
+        for ghost in self.ghosts.iter_mut() {
+            ghost.update(map, &key);
+        }
     }
 
     pub fn render(&self)

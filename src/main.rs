@@ -6,6 +6,7 @@ extern crate pacman;
 
 use pacman::Game;
 use pacman::Input;
+use pacman::Key;
 
 use std::sync::mpsc::channel;
 use std::time::Duration;
@@ -50,6 +51,7 @@ fn main()
     loop
     {
         let mut keys = Vec::new();
+        let mut key  = None;
 
         loop
         {
@@ -60,15 +62,16 @@ fn main()
             }
         }
 
-        if keys.len() == 3 {
+        if keys.len() == 3
+        {
             let arrow = (keys[0], keys[1], keys[2]);
 
             match arrow
             {
-                (27, 91, 65) => game.player.pos.x += 1,
-                (27, 91, 66) => game.player.pos.x -= 1,
-                (27, 91, 67) => game.player.pos.y += 1,
-                (27, 91, 68) => game.player.pos.y -= 1,
+                (27, 91, 67) => key = Some(Key::ArrowRight),   // game.player.pos.x += 1,
+                (27, 91, 68) => key = Some(Key::ArrowLeft),    // game.player.pos.x -= 1,
+                (27, 91, 66) => key = Some(Key::ArrowDown),    // game.player.pos.y += 1,
+                (27, 91, 65) => key = Some(Key::ArrowUp),      // game.player.pos.y -= 1,
 
                 _ => ()
             }
@@ -76,10 +79,11 @@ fn main()
 
         println!("{:?}", keys);
 
+        game.update(&key);
         game.render();
 
         print!("\x1bc");
 
-        sleep(Duration::from_millis(100));
+        sleep(Duration::from_millis(200));
     }
 }

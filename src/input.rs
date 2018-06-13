@@ -15,6 +15,15 @@ use std::thread::Builder    as ThreadBuilder;
 use std::thread::JoinHandle as ThreadHandle;
 
 
+pub enum Key
+{
+    ArrowLeft,
+    ArrowRight,
+    ArrowUp,
+    ArrowDown,
+}
+
+
 pub type InputSource = Sender<u8>;
 pub type InputSink   = Receiver<u8>;
 
