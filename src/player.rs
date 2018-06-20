@@ -41,7 +41,7 @@ impl Player
 
 impl Update for Player
 {
-    fn update(&mut self, map: &Map, key: &Option<Key>)
+    fn update(&mut self, map: &mut Map, key: &Option<Key>)
     {
         if let Some(k) = key
         {
@@ -56,8 +56,8 @@ impl Update for Player
 
         if self.dir != Direction::Standing
         {
-            let mut new_x = self.pos.x;
-            let mut new_y = self.pos.y;
+            let mut new_x = self.pos.x as i64;
+            let mut new_y = self.pos.y as i64;
 
             match self.dir
             {
@@ -68,12 +68,26 @@ impl Update for Player
                 _ => ()
             }
 
-            let cell = map.get_cell(new_x, new_y);
+            let map_width  = (map.width() as i64)  - 1;
+            let map_height = (map.height() as i64) - 1;
+
+            if new_x > map_width  { new_x = 0; }
+            if new_x < 0          { new_x = map_width; }
+            if new_y > map_height { new_y = 0; }
+            if new_y < 0          { new_y = map_height; }
+
+            let cell = map.get_cell_mut(new_x as usize, new_y as usize);
 
             if !cell.is_wall()
             {
-                self.pos.x = new_x;
-                self.pos.y = new_y;
+                self.pos.x = new_x as usize;
+                self.pos.y = new_y as usize;
+            }
+
+            if cell.has_point()
+            {
+                self.score += 10;
+                cell.has_point = false;
             }
         }
     }
@@ -84,6 +98,17 @@ impl Render for Player
 {
     fn draw(&self, canvas: &mut Canvas)
     {
-        canvas[self.pos.y][self.pos.x] = '<';
+        let icon;
+
+        match self.dir
+        {
+            Direction::Right    => icon = '<',
+            Direction::Left     => icon = '>',
+            Direction::Down     => icon = '^',
+            Direction::Up       => icon = 'v',
+            Direction::Standing => icon = '<',
+        }
+
+        canvas[self.pos.y][self.pos.x] = icon;
     }
 }

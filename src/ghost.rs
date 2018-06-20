@@ -29,7 +29,7 @@ impl Ghost
 
 impl Update for Ghost
 {
-    fn update(&mut self, map: &Map, _: &Option<Key>)
+    fn update(&mut self, map: &mut Map, _: &Option<Key>)
     {
 
     }

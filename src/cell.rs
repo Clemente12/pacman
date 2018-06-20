@@ -22,6 +22,12 @@ impl Cell
     {
         return self.has_wall;
     }
+
+    pub fn has_point(&self) -> bool
+    {
+        return self.has_point;
+    }
+
 }
 
 

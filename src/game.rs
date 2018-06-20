@@ -64,6 +64,9 @@ impl Game
 
         let map = Map::new(cells);
 
+        // let map_width = map.width();
+        // let map_height = map.height();
+
         if player.is_none() {
             panic!("No player!");
         }
@@ -73,12 +76,10 @@ impl Game
 
     pub fn update(&mut self, key: &Option<Key>)
     {
-        let map = &self.map;
-
-        self.player.update(map, &key);
+        self.player.update(&mut self.map, &key);
 
         for ghost in self.ghosts.iter_mut() {
-            ghost.update(map, &key);
+            ghost.update(&mut self.map, &key);
         }
     }
 
@@ -86,7 +87,7 @@ impl Game
     {
         // prepare canvas
         let mut canvas = Canvas::new();
-        for _ in 0..self.map.heigth() {
+        for _ in 0..self.map.height() {
             canvas.push(vec![' '; self.map.width()]);
         }
 
@@ -110,5 +111,6 @@ impl Game
         }
 
         println!("{}", buffer);
+        println!("Score: {}", self.player.score);
     }
 }

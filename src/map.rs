@@ -32,6 +32,18 @@ impl Map
         unreachable!()
     }
 
+    pub fn get_cell_mut(&mut self, x: usize, y: usize) -> &mut Cell
+    {
+        for cell in self.cells.iter_mut()
+        {
+            if cell.pos.x == x && cell.pos.y == y {
+                return cell;
+            }
+        }
+
+        unreachable!()
+    }
+
     pub fn width(&self) -> usize
     {
         let mut x = 0;
@@ -46,7 +58,7 @@ impl Map
         return x + 1;
     }
 
-    pub fn heigth(&self) -> usize
+    pub fn height(&self) -> usize
     {
         let mut y = 0;
 

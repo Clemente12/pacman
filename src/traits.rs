@@ -14,5 +14,5 @@ pub trait Render
 
 pub trait Update
 {
-    fn update(&mut self, game: &Map, keyevent: &Option<Key>);
+    fn update(&mut self, game: &mut Map, keyevent: &Option<Key>);
 }
