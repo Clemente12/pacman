@@ -3,7 +3,7 @@
 //!
 
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Position
 {
     pub x : usize,

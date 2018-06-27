@@ -77,9 +77,8 @@ fn main()
             }
         }
 
-        println!("{:?}", keys);
-
         game.update(&key);
+        game.endcondition();
         game.render();
 
         print!("\x1bc");

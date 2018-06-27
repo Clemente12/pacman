@@ -11,6 +11,10 @@ pub trait Render
     fn draw(&self, canvas: &mut Canvas);
 }
 
+pub trait Reset
+{
+    fn reset(&mut self);
+}
 
 pub trait Update
 {

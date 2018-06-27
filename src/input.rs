@@ -1,8 +1,6 @@
 //!
 //! Unbuffered but blocking IO
 //!
-use ::termios;
-
 use termios::{Termios, TCSANOW, ECHO, ICANON, tcsetattr};
 
 use std::io;

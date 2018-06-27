@@ -11,7 +11,7 @@ use ::Canvas;
 
 use ::Update;
 use ::Render;
-
+use ::Reset;
 
 
 #[derive(Debug)]
@@ -83,6 +83,19 @@ impl Game
         }
     }
 
+    pub fn endcondition(&mut self)
+    {
+        for ghost in &mut self.ghosts
+        {
+            if self.player.pos == ghost.pos
+            {
+                self.player.lives -= 1;
+                self.player.reset();
+                ghost.reset();
+            }
+        }
+    }
+
     pub fn render(&self)
     {
         // prepare canvas
@@ -112,5 +125,6 @@ impl Game
 
         println!("{}", buffer);
         println!("Score: {}", self.player.score);
+        println!("Lives: {}", self.player.lives);
     }
 }

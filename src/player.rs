@@ -5,28 +5,21 @@ use ::Key;
 use ::Map;
 use ::Canvas;
 use ::Position;
+use ::Direction;
 
 use ::Update;
 use ::Render;
-
-
-#[derive(Debug, Eq, PartialEq)]
-pub enum Direction
-{
-    Standing,
-    Left,
-    Right,
-    Up,
-    Down,
-}
+use ::Reset;
 
 
 #[derive(Debug)]
 pub struct Player
 {
-    pub pos   : Position,
-    pub dir   : Direction,
-    pub score : u64,
+    pub origin : Position,
+    pub pos    : Position,
+    pub dir    : Direction,
+    pub lives  : u32,
+    pub score  : u64,
 }
 
 
@@ -34,10 +27,18 @@ impl Player
 {
     pub fn new(pos: Position) -> Self
     {
-        return Self {pos: pos, dir: Direction::Standing, score: 0};
+        return Self {origin: pos, pos: pos, dir: Direction::Standing, lives: 3, score: 0};
     }
 }
 
+impl Reset for Player
+{
+    fn reset(&mut self)
+    {
+        self.pos = self.origin;
+        self.dir = Direction::Standing;
+    }
+}
 
 impl Update for Player
 {
@@ -47,10 +48,33 @@ impl Update for Player
         {
             match k
             {
-                Key::ArrowRight => self.dir = Direction::Right,
-                Key::ArrowLeft  => self.dir = Direction::Left,
-                Key::ArrowDown  => self.dir = Direction::Down,
-                Key::ArrowUp    => self.dir = Direction::Up,
+                Key::ArrowRight =>
+                {
+                    if !map.get_cell(self.pos.x + 1, self.pos.y).is_wall() {
+                        self.dir = Direction::Right;
+                    }
+                },
+
+                Key::ArrowLeft =>
+                {
+                    if !map.get_cell(self.pos.x - 1, self.pos.y).is_wall() {
+                        self.dir = Direction::Left;
+                    }
+                },
+
+                Key::ArrowUp =>
+                {
+                    if !map.get_cell(self.pos.x, self.pos.y - 1).is_wall() {
+                        self.dir = Direction::Up;
+                    }
+                },
+
+                Key::ArrowDown =>
+                {
+                    if !map.get_cell(self.pos.x, self.pos.y + 1).is_wall() {
+                        self.dir = Direction::Down;
+                    }
+                },
             }
         }
 

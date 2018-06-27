@@ -6,5 +6,6 @@ authors = ["hawkings"]
 [dependencies]
 docopt       = {version = "*"}
 termios      = {version = "*"}
+rand         = {version = "*"}
 serde        = {version = "*"}
 serde_derive = {version = "*"}

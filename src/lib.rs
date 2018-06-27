@@ -1,6 +1,7 @@
 //!
 //! PacMan Game Library
 //!
+extern crate rand;
 extern crate termios;
 
 mod cell;
@@ -10,12 +11,15 @@ mod input;
 mod map;
 mod player;
 mod position;
+mod direction;
 mod traits;
 
+pub use traits::Reset;
 pub use traits::Render;
 pub use traits::Update;
 
 pub use position::Position;
+pub use direction::Direction;
 
 pub use cell::Cell;
 pub use map::Map;
