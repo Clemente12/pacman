@@ -50,28 +50,28 @@ impl Update for Player
             {
                 Key::ArrowRight =>
                 {
-                    if !map.get_cell(self.pos.x + 1, self.pos.y).is_wall() {
+                    if ! map.get_cell(self.pos.x + 1, self.pos.y).is_wall() {
                         self.dir = Direction::Right;
                     }
                 },
 
                 Key::ArrowLeft =>
                 {
-                    if !map.get_cell(self.pos.x - 1, self.pos.y).is_wall() {
+                    if ! map.get_cell(self.pos.x - 1, self.pos.y).is_wall() {
                         self.dir = Direction::Left;
                     }
                 },
 
                 Key::ArrowUp =>
                 {
-                    if !map.get_cell(self.pos.x, self.pos.y - 1).is_wall() {
+                    if ! map.get_cell(self.pos.x, self.pos.y - 1).is_wall() {
                         self.dir = Direction::Up;
                     }
                 },
 
                 Key::ArrowDown =>
                 {
-                    if !map.get_cell(self.pos.x, self.pos.y + 1).is_wall() {
+                    if ! map.get_cell(self.pos.x, self.pos.y + 1).is_wall() {
                         self.dir = Direction::Down;
                     }
                 },
