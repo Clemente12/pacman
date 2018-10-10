@@ -15,6 +15,14 @@ use ::Reset;
 
 
 #[derive(Debug)]
+struct DirProb
+{
+    direction   : Direction,
+    probability : f32
+}
+
+
+#[derive(Debug)]
 pub struct Ghost
 {
     pub origin    : Position,
@@ -32,6 +40,8 @@ impl Ghost
     }
 }
 
+// let ghost = Ghost {origin: _, pos: _, direc}
+
 impl Reset for Ghost
 {
     fn reset(&mut self)
@@ -46,32 +56,54 @@ impl Update for Ghost
     {
         let prob = rand::random::<f32>();
 
-        let mut dirs = Vec::new();
+        let mut dirprobs = Vec::new();
 
         if ! map.get_cell(self.pos.x + 1, self.pos.y).is_wall() {
-            dirs.push(Direction::Right);
+            dirprobs.push(DirProb {direction: Direction::Right, probability: 0.0});
         }
         if ! map.get_cell(self.pos.x - 1, self.pos.y).is_wall() {
-            dirs.push(Direction::Left);
+            dirprobs.push(DirProb {direction: Direction::Left, probability: 0.0});
         }
         if ! map.get_cell(self.pos.x, self.pos.y + 1).is_wall() {
-            dirs.push(Direction::Down);
+            dirprobs.push(DirProb {direction: Direction::Down, probability: 0.0});
         }
         if ! map.get_cell(self.pos.x, self.pos.y - 1).is_wall() {
-            dirs.push(Direction::Up);
+            dirprobs.push(DirProb {direction: Direction::Up, probability: 0.0});
         }
 
-        let portion = 1.0 / dirs.len() as f32;
+        let mut prob_space = 1.0
 
-        for (i, dir) in dirs.iter().enumerate()
+        // assign half of the otherwise corresponding probability to the inverse direction
+        for dirprob in dirprobs.iter_mut()
+        {
+            if dirprob.direction.inverse() == self.direction
+            {
+                dirprob.probability = (1.0 / dirprobs.len()) * 0.5;
+                prob_space      -= dirprob.probability;
+            }
+        }
+
+        // assign the rest of the probability space to the remaining directions
+        let portion = prob_space / (dirprobs.len() - 1) as f32;
+
+        for dirprob in dirprobs.iter_mut()
+        {
+            if dirprob.direction.inverse() != self.direction {
+                dirprob.probability = portion;
+            };
+        }
+
+        // select direction from probability wheel
+        for (i, dirprob) in dirprobs.iter().enumerate()
         {
             if prob < portion * (i as f32 + 1.0)
             {
-                self.direction = *dir;
+                self.direction = *dirprob.direction;
                 break;
             }
         }
 
+        // move if we have a moving direction
         if self.direction != Direction::Standing
         {
             let mut new_x = self.pos.x as i64;
