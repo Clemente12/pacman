@@ -29,7 +29,7 @@ impl Map
             }
         }
 
-        unreachable!()
+        panic!("Accesing map cell out of bounds")
     }
 
     pub fn get_cell_mut(&mut self, x: usize, y: usize) -> &mut Cell
@@ -41,7 +41,7 @@ impl Map
             }
         }
 
-        unreachable!()
+        panic!("Accesing map cell out of bounds")
     }
 
     pub fn width(&self) -> usize

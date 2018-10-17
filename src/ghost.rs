@@ -54,37 +54,47 @@ impl Update for Ghost
 {
     fn update(&mut self, map: &mut Map, _: &Option<Key>)
     {
+        let map_width  = (map.width() as i64)  - 1;
+        let map_height = (map.height() as i64) - 1;
+
         let prob = rand::random::<f32>();
 
         let mut dirprobs = Vec::new();
 
-        if ! map.get_cell(self.pos.x + 1, self.pos.y).is_wall() {
+        if (self.pos.x as i64 + 1 > map_height) || ! map.get_cell(self.pos.x + 1, self.pos.y).is_wall() {
             dirprobs.push(DirProb {direction: Direction::Right, probability: 0.0});
         }
-        if ! map.get_cell(self.pos.x - 1, self.pos.y).is_wall() {
+
+        if (self.pos.x as i64 - 1 < 0) || ! map.get_cell(self.pos.x - 1, self.pos.y).is_wall() {
             dirprobs.push(DirProb {direction: Direction::Left, probability: 0.0});
         }
-        if ! map.get_cell(self.pos.x, self.pos.y + 1).is_wall() {
+
+        if (self.pos.y as i64 + 1 > map_height) || ! map.get_cell(self.pos.x, self.pos.y + 1).is_wall() {
             dirprobs.push(DirProb {direction: Direction::Down, probability: 0.0});
         }
-        if ! map.get_cell(self.pos.x, self.pos.y - 1).is_wall() {
+
+        if (self.pos.y as i64 - 1 < 0) || ! map.get_cell(self.pos.x, self.pos.y - 1).is_wall() {
             dirprobs.push(DirProb {direction: Direction::Up, probability: 0.0});
         }
 
-        let mut prob_space = 1.0
+        let mut prob_space = 1.0;
+        let mut prob_acc   = 0.0;
+        let mut prob_count = dirprobs.len();
 
         // assign half of the otherwise corresponding probability to the inverse direction
         for dirprob in dirprobs.iter_mut()
         {
             if dirprob.direction.inverse() == self.direction
             {
-                dirprob.probability = (1.0 / dirprobs.len()) * 0.5;
-                prob_space      -= dirprob.probability;
+                dirprob.probability  = (1.0 / prob_count as f32) * 0.2;
+
+                prob_space -= dirprob.probability;
+                prob_count -= 1;
             }
         }
 
         // assign the rest of the probability space to the remaining directions
-        let portion = prob_space / (dirprobs.len() - 1) as f32;
+        let portion = prob_space / prob_count as f32;
 
         for dirprob in dirprobs.iter_mut()
         {
@@ -94,11 +104,13 @@ impl Update for Ghost
         }
 
         // select direction from probability wheel
-        for (i, dirprob) in dirprobs.iter().enumerate()
+        for dirprob in dirprobs.iter()
         {
-            if prob < portion * (i as f32 + 1.0)
+            prob_acc += dirprob.probability;
+
+            if prob < prob_acc
             {
-                self.direction = *dirprob.direction;
+                self.direction = dirprob.direction;
                 break;
             }
         }
@@ -118,9 +130,6 @@ impl Update for Ghost
                 _ => ()
             }
 
-            let map_width  = (map.width() as i64)  - 1;
-            let map_height = (map.height() as i64) - 1;
-
             if new_x > map_width  { new_x = 0; }
             if new_x < 0          { new_x = map_width; }
             if new_y > map_height { new_y = 0; }
@@ -137,6 +146,6 @@ impl Render for Ghost
 {
     fn draw(&self, canvas: &mut Canvas)
     {
-        canvas[self.pos.y][self.pos.x] = 'A'
+        canvas[self.pos.y][self.pos.x] = 'A';
     }
 }

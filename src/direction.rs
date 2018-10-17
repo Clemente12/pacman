@@ -16,7 +16,7 @@ pub enum Direction
 
 impl Direction
 {
-    pub inverse(&self) -> Direction
+    pub fn inverse(&self) -> Direction
     {
         match self
         {
