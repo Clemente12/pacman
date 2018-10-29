@@ -15,12 +15,61 @@ use ::Reset;
 
 
 #[derive(Debug)]
+enum GameCondition
+{
+    GameOngoing,
+    GameOver,
+    GameWon,
+}
+
+
+#[derive(Debug)]
 pub struct Game
 {
     pub map    : Map,
     pub player : Player,
     pub ghosts : Vec<Ghost>,
+
+    end : GameCondition
 }
+
+
+
+static BANNER_GAMEOVER: &'static str = "
+########## ########## ####  #### ##########\n\
+##         ##      ## ##  ##  ## ##        \n\
+##         ##      ## ##  ##  ## ##        \n\
+##    #### ########## ##      ## #######   \n\
+##      ## ##      ## ##      ## ##        \n\
+##      ## ##      ## ##      ## ##        \n\
+########## ##      ## ##      ## ##########\n\
+                                           \n\
+########## ##      ## ########## ##########\n\
+##      ## ##      ## ##         ##      ##\n\
+##      ## ##      ## ##         ##      ##\n\
+##      ## ##      ## #######    ##########\n\
+##      ##  ##    ##  ##         ##    ##  \n\
+##      ##   ##  ##   ##         ##     ## \n\
+##########     ##     ########## ##      ##\n\
+";
+
+static BANNER_GAMEWON: &'static str = "
+########## ########## ####  #### ##########\n\
+##         ##      ## ##  ##  ## ##        \n\
+##         ##      ## ##  ##  ## ##        \n\
+##    #### ########## ##      ## #######   \n\
+##      ## ##      ## ##      ## ##        \n\
+##      ## ##      ## ##      ## ##        \n\
+########## ##      ## ##      ## ##########\n\
+                                           \n\
+###        ### ########### ###       ##  ##\n\
+ ##        ##  ##       ## ## ##     ##  ##\n\
+ ##        ##  ##       ## ##  ##    ##  ##\n\
+ ##        ##  ##       ## ##   ##   ##  ##\n\
+  ##  ##  ##   ##       ## ##    ##  ##  ##\n\
+   ## ## ##    ##       ## ##     ## ##    \n\
+    ##  ##     ########### ##       ###  ##\n\
+";
 
 
 impl Game
@@ -71,7 +120,7 @@ impl Game
             panic!("No player!");
         }
 
-        return Self {map: map, player: player.unwrap(), ghosts: ghosts};
+        return Self {map: map, player: player.unwrap(), ghosts: ghosts, end: GameCondition::GameOngoing};
     }
 
     pub fn update(&mut self, key: &Option<Key>)
@@ -85,6 +134,7 @@ impl Game
 
     pub fn endcondition(&mut self)
     {
+        // ghost kills pacman (game over)
         for ghost in &mut self.ghosts
         {
             if self.player.pos == ghost.pos
@@ -94,37 +144,70 @@ impl Game
                 ghost.reset();
             }
         }
+
+        if self.player.lives <= 0 {
+            self.end = GameCondition::GameOver;
+        }
+
+        // pacman eats all points (game won)
+        let mut has_point = false;
+        for cell in &self.map.cells
+        {
+            if cell.has_point()
+            {
+                has_point = true;
+                break;
+            }
+        }
+
+        if !has_point {
+            self.end = GameCondition::GameWon;
+        }
     }
 
     pub fn render(&self)
     {
-        // prepare canvas
-        let mut canvas = Canvas::new();
-        for _ in 0..self.map.height() {
-            canvas.push(vec![' '; self.map.width()]);
-        }
-
-        // draw objects
-        self.map.draw(&mut canvas);
-        self.player.draw(&mut canvas);
-
-        for ghost in &self.ghosts {
-            ghost.draw(&mut canvas);
-        }
-
-        // output to screen
-        let mut buffer = String::new();
-        for row in canvas
+        match self.end
         {
-            for col in row {
-                buffer.push(col);
+            GameCondition::GameWon => {
+                println!("{}", BANNER_GAMEWON);
+            },
+
+            GameCondition::GameOver => {
+                println!("{}", BANNER_GAMEOVER);
+            },
+
+            GameCondition::GameOngoing =>
+            {
+                // prepare canvas
+                let mut canvas = Canvas::new();
+                for _ in 0..self.map.height() {
+                    canvas.push(vec![' '; self.map.width()]);
+                }
+
+                // draw objects
+                self.map.draw(&mut canvas);
+                self.player.draw(&mut canvas);
+
+                for ghost in &self.ghosts {
+                    ghost.draw(&mut canvas);
+                }
+
+                // output to screen
+                let mut buffer = String::new();
+                for row in canvas
+                {
+                    for col in row {
+                        buffer.push(col);
+                    }
+
+                    buffer.push('\n');
+                }
+
+                println!("{}", buffer);
+                println!("Score: {}", self.player.score);
+                println!("Lives: {}", self.player.lives);
             }
-
-            buffer.push('\n');
         }
-
-        println!("{}", buffer);
-        println!("Score: {}", self.player.score);
-        println!("Lives: {}", self.player.lives);
     }
 }

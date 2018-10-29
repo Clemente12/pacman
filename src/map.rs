@@ -9,7 +9,7 @@ use ::Cell;
 #[derive(Debug)]
 pub struct Map
 {
-    cells: Vec<Cell>,
+    pub cells: Vec<Cell>,
 }
 
 
